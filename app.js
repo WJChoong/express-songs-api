@@ -3,7 +3,37 @@ const app = express();
 
 app.use(express.json())
 
-let songs = [];
+let songs = [
+  {
+    id: 1,
+    name: "Before You Go",
+    author: "Lewis Capaldi"
+  },
+  {
+    id: 2,
+    type: "Tap In",
+    author: "Saweetie"
+  },
+  {
+    id: 3,
+    name: "Say Something",
+    author: "Kylie Minogue"
+  },
+  {
+    id: 4,
+    name: "More Than My Hometown",
+    author: " Morgan Wallen"
+  }
+];
+
+app.param("id", (req, res, next, songValue) => {
+  // get the list of songs
+  let song = songs.find(song => song.id == parseInt(songValue));
+  req.song = song;
+
+  next();
+});
+
 
 //return list of all songs
 app.get('/songs', (req, res) => {
@@ -23,24 +53,21 @@ app.post('/songs', (req, res) => {
 
 //return a song with id 
 app.get('/songs/:id', (req, res) => {
-  let song = songs.find(song => song.id == parseInt(req.params.id));
-  res.status(200).json(song);
+  res.status(200).json(req.song);
 });
 
 //edit a song with id, and return edited song
 app.put('/songs/:id', (req, res) => {
-  let song = songs.find(song => song.id === parseInt(req.params.id));
-  song.name = req.body.name;
-  song.artist = req.body.artist;
-  res.status(200).json(song);
+  req.song.name = req.body.name;
+  req.song.artist = req.body.artist;
+  res.status(200).json(req.song);
 });
 
 //delete a song with id, and return deleted song
 app.delete("/songs/:id", (req, res) => {
-  let songToDelete = songs.find(song => song.id === parseInt(req.params.id));
-  let index = songs.indexOf(songToDelete);
+  let index = songs.indexOf(req.song);
   songs.splice(index, 1);
-  res.status(200).json(songToDelete);
+  res.status(200).json(req.song);
 });
 
 module.exports = app
