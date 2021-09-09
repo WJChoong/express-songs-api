@@ -19,7 +19,7 @@ app.post('/songs', (req, res) => {
     artist: req.body.artist 
   }
   songs.push(newSong);
-  res.status(201).json(newSong);
+  res.status(200).json(newSong);
 });
 
 //return a song with id 
