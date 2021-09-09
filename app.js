@@ -37,7 +37,7 @@ app.get("/songs", (req, res) => {
 
 
 //create a new song, and return new song
-app.post("/songs", function(req, res) {
+app.post("/songs", (req, res) => {
     const songName = req.body.name;
     const songArtist = req.body.artist
 
@@ -60,7 +60,7 @@ app.get("/songs/:id", (req, res) => {
 
 
 //edit a song with id, and return edited song
-app.put("/songs/:id", function(req, res) {
+app.put("/songs/:id", (req, res) => {
     req.song = parseInt(req.params.id);
     // 1. get song to be updated
     let remainingSongs = songs.filter(song => song.id === req.song);
@@ -81,7 +81,7 @@ app.put("/songs/:id", function(req, res) {
 
 
 //delete a song with id, and return deleted song
-app.delete("/songs/:id", function(req, res) {
+app.delete("/songs/:id", (req, res) => {
     req.song = parseInt(req.params.id);
 
     // 1. filter out the song which match the id
