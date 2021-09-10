@@ -49,8 +49,9 @@ router.get('/', (req, res, next) => {
 
 //create a new song, and return new song
 router.post('/', async (req, res) => {    
+    console.log(req.body);
     try {
-        const result = await schema.validateAsync(req.body);
+        const result = await Joi.validate(req.body, schema);
     }catch{
         return res.status(400).json("Bad Request");
     }
@@ -72,14 +73,13 @@ router.get('/:id', (req, res, next) => {
 //update a song with id, and return edited song
 router.put('/:id', async (req, res, next) => {
     try {
-        const result = await schema.validateAsync(req.body);
+        const result = await Joi.validate(req.body, schema);
     }catch{
         return res.status(400).json("Bad Request");
     }
-
     req.song.name = req.body.name;
-    req.song.artist = req.body.artist;
-    res.status(200).json(req.song);
+        req.song.artist = req.body.artist;
+        res.status(200).json(req.song);
 });
 
 //delete a song with id, and return deleted song
