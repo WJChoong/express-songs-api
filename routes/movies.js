@@ -24,12 +24,14 @@ let movies = [
       }
 ];
 
+// param handler
 router.param("movieId", (req, res,next, id) => {
     let movie = movies.find(movie => movie.id == parseInt(req.params.movieId));
     req.movie = movie;
     next();
 })
 
+// get all data
 router.get('/', (req, res) => {
     res.status(200).json(movies);
 })
