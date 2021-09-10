@@ -26,12 +26,15 @@ let songs = [
 
 router.param('songId', (req, res, next, id) => {
     let song = songs.find(song => song.id === parseInt(id));
-    if (songs.id){
+    
+    try{
+        String(song.id);
         req.song = song;
         next();
-    }else{
-        res.status(404);
-        res.send({ error: `Unable to find song with id: ${id}`})
+    }catch{
+        let err = `Unable to find song with id: ${id}`
+        res.status(404)
+        res.send({ error: err})
     }
 });
 
