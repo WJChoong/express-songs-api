@@ -109,12 +109,16 @@ router.get('/', async (req, res, next) => {
 
 //create a new song, and return new song
 router.post('/', async (req, res, next) => {
-    const validation = validateSong(req.body)
-    if(validation.error) {
-        let error = new Error(validation.error.details[0].message)
-        error.statusCode = 400
-        return next(error); 
-    } 
+    try{
+        const validation = await validateSong(req.body);
+        if (validation.error){
+            let error = new Error(validation.error.details[0].message)
+            error.statusCode = 400
+            return next(error);
+        }
+    }catch{
+        return res.status(200).json("Invalid Input");
+    }
     
     try{
         let song = await createSong(req.body,req.song);
@@ -132,13 +136,6 @@ router.get('/:id', (req, res, next) => {
 
 //update a song with id, and return edited song
 router.put('/:id', async (req, res, next) => {
-    const validation = validateSong(req.body)
-    if (validation.error){
-        let error = new Error(validation.error.details[0].message)
-        error.statusCode = 400
-        return next(error);
-    }
-    
     try{
         let song = await updateSong(req.body,req.song);
         res.status(200).json(song);
@@ -171,19 +168,13 @@ router.use(function(err, req, res, next) {
     res.status(err.statusCode).json({ message : err.message}); 
 });
 
-const validateSong = async (song) => {
+const validateSong = (song) => {
     const schema = {
         name: Joi.string().min(3).required(),
         artist: Joi.string().min(3).required()
     }
-    try{
-        const result = await schema.validateAsync(song, schema);
-        return result;
-    }catch(error){
-        console.log(error);
-        const result = req.error;
-        return result;
-    }
+    const result = Joi.validate(song, schema);
+    return result;
 }
 
 module.exports = router;
