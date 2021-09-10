@@ -2,7 +2,28 @@ const Joi = require('joi');
 const express = require('express');
 const router = express.Router();
 
-let songs = [];
+let songs = [
+    {
+        id: 1,
+        name: "Before You Go",
+        artist: "Lewis Capaldi"
+      },
+      {
+        id: 2,
+        name: "Tap In",
+        artist: "Saweetie"
+      },
+      {
+        id: 3,
+        name: "Say Something",
+        artist: "Kylie Minogue"
+      },
+      {
+        id: 4,
+        name: "More Than My Hometown",
+        artist: "Morgan Wallen"
+      }
+];
 const DELAY = 10
 
 //Integrate below methods in the route handlers with async and await
@@ -66,24 +87,28 @@ const deleteSong = (songToDelete) => {
 }
 
 //Song API
-router.param('id', (req, res, next, id) => {
-    let song = songs.find(song => song.id === parseInt(id));
-    if(!song){
-        const error = new Error(`Unable to find song with id: ${id}`);
-        error.statusCode = 404;
-        return next(error)
+router.param('id', async (req, res, next, id) => {
+    try{
+        let song = await getSong(id);
+        req.song = song;
+    }catch(error){
+        res.send(`Fail to get the song with id: ${id}`);
     }
-    req.song = song;
     next();
 });
 
-//return list of all songs
-router.get('/', (req, res, next) => {
+//return list of all songs， Done
+router.get('/', async (req, res, next) => {
+    try{
+        let songs = await getSongs();
+    }catch(error){
+        res.send("Fail to get songs");
+    }
     res.status(200).json(songs);
 });
 
 //create a new song, and return new song
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const validation = validateSong(req.body)
     if(validation.error) {
         let error = new Error(validation.error.details[0].message)
@@ -91,13 +116,13 @@ router.post('/', (req, res, next) => {
         return next(error); 
     } 
     
-    let newSong = {
-        id: songs.length + 1,
-        name: req.body.name,
-        artist: req.body.artist 
+    try{
+        let song = await createSong(req.body,req.song);
+        res.status(200).json(song);
+    }catch(error){
+        console.log(error);
+        res.send("Unable to add the song");
     }
-    songs.push(newSong);
-    res.status(201).json(newSong);
 });
 
 //return a song with id 
@@ -106,25 +131,32 @@ router.get('/:id', (req, res, next) => {
 });
 
 //update a song with id, and return edited song
-router.put('/:id', (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     const validation = validateSong(req.body)
     if (validation.error){
         let error = new Error(validation.error.details[0].message)
         error.statusCode = 400
         return next(error);
     }
-
-    req.song.name = req.body.name;
-    req.song.artist = req.body.artist;
-    res.status(200).json(req.song);
+    
+    try{
+        let song = await updateSong(req.body,req.song);
+        res.status(200).json(song);
+    }catch(error){
+        console.log(error);
+        res.send("Unable to update the song");
+    }
 });
 
 //delete a song with id, and return deleted song
-router.delete("/:id", (req, res, next) => {
-
-    let index = songs.indexOf(req.song);
-    songs.splice(index, 1);
-    res.status(200).json(req.song);
+router.delete("/:id", async (req, res, next) => {
+    try{
+        let song = await deleteSong(req.song);
+        res.status(200).json(song);
+    }catch(error){
+        console.log(error);
+        res.send("Unable to delete the song");
+    }    
 });
 
 //Add error handler for songs router to return error on failure at any route
@@ -139,13 +171,19 @@ router.use(function(err, req, res, next) {
     res.status(err.statusCode).json({ message : err.message}); 
 });
 
-function validateSong(song){
+const validateSong = async (song) => {
     const schema = {
-        id: Joi.number().integer(),
         name: Joi.string().min(3).required(),
         artist: Joi.string().min(3).required()
     }
-    return Joi.validate(song, schema);
+    try{
+        const result = await schema.validateAsync(song, schema);
+        return result;
+    }catch(error){
+        console.log(error);
+        const result = req.error;
+        return result;
+    }
 }
 
 module.exports = router;

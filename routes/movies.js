@@ -1,7 +1,28 @@
 const express = require('express');
 const router = express.Router()
 
-let movies = [];
+let movies = [
+    {
+        id: 1,
+        name: "The Notebook",
+        artist: "Ryan Gosling"
+      },
+      {
+        id: 2,
+        name: "The Hate U Give",
+        artist: "Amandla Stenberg"
+      },
+      {
+        id: 3,
+        name: "Titanic",
+        artist: "Jackson Maine"
+      },
+      {
+        id: 4,
+        name: "A Star Is Born",
+        artist: "Bradley Cooper"
+      }
+];
 
 // Movies API
 //return list of all movies
