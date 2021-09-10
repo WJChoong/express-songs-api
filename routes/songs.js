@@ -65,7 +65,6 @@ router.put('/:songId', (req, res) => {
 
 //delete a song with id, and return deleted song
 router.delete("/:songId", (req, res) => {
-    console.log("1");
     let songToDelete = req.song
     let index = songs.indexOf(songToDelete);
     songs.splice(index, 1);
