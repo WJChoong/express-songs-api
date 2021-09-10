@@ -30,6 +30,7 @@ router.param('songId', (req, res, next, id) => {
         req.song = song;
         next();
     }else{
+        res.status(404);
         res.send({ error: `Unable to find song with id: ${id}`})
     }
 });
