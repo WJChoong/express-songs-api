@@ -1,7 +1,34 @@
 const express = require('express');
+const Joi = require('joi');
 const router = express.Router();
 
-let songs = [];
+let songs = [
+    {
+        id: 1,
+        name: "Before You Go",
+        artist: "Lewis Capaldi"
+    },
+    {
+        id: 2,
+        name: "Tap In",
+        artist: "Saweetie"
+    },
+    {
+        id: 3,
+        name: "Say Something",
+        artist: "Kylie Minogue"
+    },
+    {
+        id: 4,
+        name: "More Than My Hometown",
+        artist: "Morgan Wallen"
+    }
+];
+
+const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+    artist: Joi.string().min(3).required(),
+})
 
 //Song API
 router.param('id', (req, res, next, id) => {
@@ -21,9 +48,11 @@ router.get('/', (req, res, next) => {
 });
 
 //create a new song, and return new song
-router.post('/', (req, res) => {
-    if(!req.body){
-        return next(new Error("Unable to create song"))
+router.post('/', async (req, res) => {    
+    try {
+        const result = await schema.validateAsync(req.body);
+    }catch{
+        return res.status(400).json("Bad Request");
     }
 
     let newSong = {
@@ -41,7 +70,13 @@ router.get('/:id', (req, res, next) => {
 });
 
 //update a song with id, and return edited song
-router.put('/:id', (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
+    try {
+        const result = await schema.validateAsync(req.body);
+    }catch{
+        return res.status(400).json("Bad Request");
+    }
+
     req.song.name = req.body.name;
     req.song.artist = req.body.artist;
     res.status(200).json(req.song);

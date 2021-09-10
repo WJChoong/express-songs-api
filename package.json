@@ -9,7 +9,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "express": "~4.16.0"
+    "express": "~4.16.0",
+    "joi": "^17.4.2"
   },
   "devDependencies": {
     "jest": "^23.6.0",
