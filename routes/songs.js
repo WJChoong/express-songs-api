@@ -122,7 +122,7 @@ router.post('/', async (req, res, next) => {
     
     try{
         let song = await createSong(req.body,req.song);
-        res.status(200).json(song);
+        res.status(200).json(songs);
     }catch(error){
         console.log(error);
         res.send("Unable to add the song");
@@ -136,13 +136,23 @@ router.get('/:id', (req, res, next) => {
 
 //update a song with id, and return edited song
 router.put('/:id', async (req, res, next) => {
-    try{
-        let song = await updateSong(req.body,req.song);
-        res.status(200).json(song);
-    }catch(error){
-        console.log(error);
-        res.send("Unable to update the song");
-    }
+  try{
+      const validation = await validateSong(req.body);
+      if (validation.error){
+          let error = new Error(validation.error.details[0].message)
+          error.statusCode = 400
+          return next(error);
+      }
+  }catch{
+      return res.status(200).json("Invalid Input");
+  }
+  try{
+      let song = await updateSong(req.body, req.song);
+      res.status(200).json(song);
+  }catch(error){
+      console.log(error);
+      res.send("Unable to update the song");
+  }
 });
 
 //delete a song with id, and return deleted song
